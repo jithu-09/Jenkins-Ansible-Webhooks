@@ -1,0 +1,40 @@
+- name: Build and deploy docker container
+  hosts: dockerserver
+  gather_facts: false
+  remote_user: root
+  tasks:
+    #    - name: Copy files to remote(docker) server
+    #  shell: scp -r /var/lib/jenkins/workspace/ansible-jenkins-pipeline/ root@34.230.2.120:~/project/
+
+    - name: Stop Container
+      docker_container:
+        name: oxer-container
+        image: oxer:latest
+        state: stopped
+
+    - name: Remove Container
+      docker_container:
+        name: oxer-container
+        image: oxer:latest
+        state: absent
+
+    - name: Removing docker image
+      docker_image:
+        name: oxer:latest
+        state: absent
+
+    - name: Building docker image
+      docker_image:
+        name: oxer:latest
+        source: build
+        build:
+          path: ~/project/
+        state: present
+
+    - name: Create Container
+      docker_container:
+        name: oxer-container
+        image: oxer:latest
+        ports:
+          - "80:80"
+        state: started
